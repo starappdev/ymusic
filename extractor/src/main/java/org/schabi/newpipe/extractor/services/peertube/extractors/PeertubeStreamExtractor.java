@@ -211,8 +211,28 @@ public class PeertubeStreamExtractor extends StreamExtractor {
     public List<VideoStream> getVideoStreams() throws ExtractionException {
         assertPageFetched();
         final List<VideoStream> videoStreams = new ArrayList<>();
+        // mp4
         try {
-            final JsonArray streams = json.getArray("files");
+            videoStreams.addAll(getVideoStreamsFromArray(json.getArray("files")));
+        } catch (Exception ignored) { }
+        // HLS
+        try {
+            final JsonArray streamingPlaylists = json.getArray("streamingPlaylists");
+            for (final Object p : streamingPlaylists) {
+                if (!(p instanceof JsonObject)) continue;
+                final JsonObject playlist = (JsonObject) p;
+                videoStreams.addAll(getVideoStreamsFromArray(playlist.getArray("files")));
+            }
+        } catch (Exception e) {
+            throw new ParsingException("Could not get video streams", e);
+        }
+
+        return videoStreams;
+    }
+
+    private List<VideoStream> getVideoStreamsFromArray(final JsonArray streams) throws ParsingException {
+        try {
+            final List<VideoStream> videoStreams = new ArrayList<>();
             for (final Object s : streams) {
                 if (!(s instanceof JsonObject)) continue;
                 final JsonObject stream = (JsonObject) s;
@@ -226,13 +246,12 @@ public class PeertubeStreamExtractor extends StreamExtractor {
                     videoStreams.add(videoStream);
                 }
             }
+            return videoStreams;
         } catch (Exception e) {
-            throw new ParsingException("Could not get video streams", e);
+            throw new ParsingException("Could not get video streams from array");
         }
 
-        return videoStreams;
     }
-
 
     @Override
     public List<VideoStream> getVideoOnlyStreams() {
