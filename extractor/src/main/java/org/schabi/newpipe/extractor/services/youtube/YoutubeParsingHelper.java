@@ -72,7 +72,7 @@ public class YoutubeParsingHelper {
 
     private static String key;
 
-    private static final String[] HARDCODED_YOUTUBE_MUSIC_KEYS = {"AIzaSyC9XL3ZjWddXya6X74dJoCTL-WEYFDNX30", "67", "0.1"};
+    private static final String[] HARDCODED_YOUTUBE_MUSIC_KEYS = {"", "67", "0.1"};
     private static String[] youtubeMusicKeys;
 
     private static Random numberGenerator = new Random();
